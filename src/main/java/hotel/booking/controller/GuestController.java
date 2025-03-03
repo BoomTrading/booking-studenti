@@ -9,8 +9,6 @@ import hotel.booking.repository.GuestRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
@@ -58,6 +56,14 @@ public class GuestController {
 		if(guestRepository.existsById(id)) 
 			guestRepository.deleteById(id);;
 		return "redirect:/guests/all";
+	}
+
+	@PostMapping("/search")
+	public String listGuestsByPatternLike(Model model, @RequestParam String pattern) {
+	List<Guest> guests = guestRepository.findByPatternLike(pattern);
+	System.out.println("       [pattern: "+pattern +"]");
+		model.addAttribute("guests", guests);
+		return "guests";
 	}
 
 	
