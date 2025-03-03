@@ -4,7 +4,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import hotel.booking.model.Autocomplete;
 import hotel.booking.model.Guest;
 import hotel.booking.repository.GuestRepository;
 
@@ -61,28 +60,6 @@ public class GuestController {
 		return "redirect:/guests/all";
 	}
 
-	@PostMapping("/search")
-	public String listGuestsByPatternLike(Model model, @RequestParam String pattern) {
-	List<Guest> guests = guestRepository.findByPatternLike(pattern);
-	System.out.println("       [pattern: "+pattern +"]");
-		model.addAttribute("guests", guests);
-		return "guests";
-	}
-	
-	@GetMapping("/autocomplete")
-	@ResponseBody
-	public List<Autocomplete> autocomplete(@RequestParam String term) {
-		List<Autocomplete> autoList = new ArrayList<Autocomplete>();
-		List<Guest> guests = guestRepository.findByPatternLike(term);
-
-		for (Guest guest : guests) {
-			Autocomplete item = new Autocomplete();
-			item.setLabel(guest.getLastName() +" "+ guest.getFirstName());
-			item.setValue(guest.getId());
-			autoList.add(item);
-		}
-		return autoList;
-	}
 	
 	// Add more CRUD methods for each entity as needed
 }

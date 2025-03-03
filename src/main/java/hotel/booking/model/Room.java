@@ -6,65 +6,64 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "Rooms")
 public class Room {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+    @Column(name = "roomNumber")
+    private String roomNumber;
 
-	@Column(name = "roomNumber")
-	private String roomNumber;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private RoomType type;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "type")
-	private RoomType type;
+    @Column(name = "price")
+    private BigDecimal price;
 
-	@Column(name = "price")
-	private BigDecimal price;
+    @Column(name = "is_available")
+    private boolean is_available;
 
-	@Column(name = "is_available")
-	private boolean available;
+    public int getId() {
+        return id;
+    }
 
-	public int getId() {
-		return id;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public String getRoomNumber() {
+        return roomNumber;
+    }
 
-	public String getRoomNumber() {
-		return roomNumber;
-	}
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
 
-	public void setRoomNumber(String roomNumber) {
-		this.roomNumber = roomNumber;
-	}
+    public RoomType getType() {
+        return type;
+    }
 
-	public RoomType getType() {
-		return type;
-	}
+    public void setType(RoomType type) {
+        this.type = type;
+    }
 
-	public void setType(RoomType type) {
-		this.type = type;
-	}
+    public BigDecimal getPrice() {
+        return price;
+    }
 
-	public BigDecimal getPrice() {
-		return price;
-	}
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
-	public void setPrice(BigDecimal price) {
-		this.price = price;
-	}
+    public boolean isIs_available() {
+        return is_available;
+    }
 
-	public boolean getAvailable() {
-		return available;
-	}
+    public void setIs_available(boolean isAvailable) {
+        this.is_available = isAvailable;
+    }
 
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
-
-	public enum RoomType {
-		Single, Double, Suite
-	}
+    public enum RoomType {
+        Single, Double, Suite
+    }
 }
