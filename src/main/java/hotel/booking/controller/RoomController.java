@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import hotel.booking.model.Autocomplete;
 import hotel.booking.model.Room;
 import hotel.booking.repository.RoomRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,10 +54,14 @@ public class RoomController {
 
     @GetMapping("/delete/{id}")
     public String deleteRoom(@PathVariable("id") int id) {
-        if (roomRepository.existsById(id)) {
-            roomRepository.deleteById(id);
+        try {
+            if (roomRepository.existsById(id)) {
+                roomRepository.deleteById(id);
+            }
+            return "redirect:/rooms/all";
+        } catch (DataIntegrityViolationException e) {
+            return "error/roomDeleteError";
         }
-        return "redirect:/rooms/all";
     }
 
     @PostMapping("/search")
@@ -75,12 +80,12 @@ public class RoomController {
 
         for (Room room : rooms) {
             Autocomplete item = new Autocomplete();
-            item.setLabel(room.getRoomNumber() +" - "+ room.getType());
+            item.setLabel(room.getRoomNumber() + " - " + room.getType());
             item.setValue(room.getId());
             autoList.add(item);
         }
         return autoList;
     }
-   
+
     // Add more CRUD methods for each entity as needed
 }

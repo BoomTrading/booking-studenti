@@ -1,5 +1,6 @@
 package hotel.booking.controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -53,10 +54,14 @@ public class GuestController {
 
 	@GetMapping("/delete/{id}")
 	public String deleteGuest(@PathVariable("id") int id) {
-		// Guest guest = guestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid guest Id:" + id));
-		if(guestRepository.existsById(id)) 
-			guestRepository.deleteById(id);;
-		return "redirect:/guests/all";
+		try {
+			if(guestRepository.existsById(id)) {
+				guestRepository.deleteById(id);
+			}
+			return "redirect:/guests/all";
+		} catch (DataIntegrityViolationException e) {
+			return "error/guestDeleteError";
+		}
 	}
 
 	@PostMapping("/search")
