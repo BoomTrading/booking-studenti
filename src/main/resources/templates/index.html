@@ -36,16 +36,16 @@
                                 th:href="@{/guests/all}">GUESTS</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/logout}">LOG OUT</a>
+                            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                                <button type="submit" class="nav-link" style="background: none; border: none;">LOG OUT</button>
+                            </form>
                         </li>
                     </ul>
-                    <form class="d-flex ml-auto" role="search" th:action="@{/guests/search}" method="post">
+                    <form th:if="${activepage != 'rooms'}" class="d-flex ml-auto" role="search" th:action="@{/guests/search}" method="post">
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
                             name="pattern" id="pattern">
                         <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
                     </form>
-
-
                 </div>
             </div>
         </nav>

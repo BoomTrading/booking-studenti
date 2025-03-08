@@ -1,11 +1,17 @@
 package hotel.booking.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,5 +112,41 @@ public class BookingController {
 			bookingRepository.deleteById(id);;
 		return "redirect:/";
 	}
+
+	@GetMapping("/bookings/calculate")
+	@ResponseBody
+	public ResponseEntity<?> calculateBookingPrice(
+	        @RequestParam int roomId,
+	        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate checkIn,
+	        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate checkOut) {
+	    
+	    System.out.println("Calculate request - roomId: " + roomId + ", checkIn: " + checkIn + ", checkOut: " + checkOut);
+	    
+	    try {
+	        Room room = roomRepository.findById(roomId)
+	            .orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomId));
+
+	        long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
+	        if (nights <= 0) {
+	            throw new IllegalArgumentException("Check-out must be after check-in");
+	        }
+
+	        BigDecimal totalPrice = room.getPrice().multiply(BigDecimal.valueOf(nights));
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("totalAmount", totalPrice);
+	        response.put("nights", nights);
+	        response.put("pricePerNight", room.getPrice());
+	        
+	        System.out.println("Calculation successful - total: " + totalPrice + ", nights: " + nights);
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        System.err.println("Calculation error: " + e.getMessage());
+	        Map<String, Object> errorResponse = new HashMap<>();
+	        errorResponse.put("error", e.getMessage());
+	        return ResponseEntity.badRequest().body(errorResponse);
+	    }
+	}
+
 
 }

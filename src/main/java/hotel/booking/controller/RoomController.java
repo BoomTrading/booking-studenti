@@ -5,9 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import hotel.booking.model.Autocomplete;
 import hotel.booking.model.Room;
 import hotel.booking.repository.RoomRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -56,4 +58,29 @@ public class RoomController {
         }
         return "redirect:/rooms/all";
     }
+
+    @PostMapping("/search")
+    public String listRoomsByPatternLike(Model model, @RequestParam String pattern) {
+        List<Room> rooms = roomRepository.findByPatternLike(pattern);
+        System.out.println("       [pattern: " + pattern + "]");
+        model.addAttribute("rooms", rooms);
+        return "rooms";
+    }
+
+    @GetMapping("/autocomplete")
+    @ResponseBody
+    public List<Autocomplete> autocomplete(@RequestParam String term) {
+        List<Autocomplete> autoList = new ArrayList<Autocomplete>();
+        List<Room> rooms = roomRepository.findByPatternLike(term);
+
+        for (Room room : rooms) {
+            Autocomplete item = new Autocomplete();
+            item.setLabel(room.getRoomNumber() +" - "+ room.getType());
+            item.setValue(room.getId());
+            autoList.add(item);
+        }
+        return autoList;
+    }
+   
+    // Add more CRUD methods for each entity as needed
 }

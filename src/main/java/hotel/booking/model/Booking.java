@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+
 @Entity
 @Table(name = "Bookings")
 public class Booking {
@@ -32,6 +33,12 @@ public class Booking {
 	@ManyToOne
 	@JoinColumn(name = "Rooms_id")
 	private Room room;
+
+	@Column(name = "checkInTime", length = 100)
+	private String checkInTime;
+
+	@Column(name = "checkOutTime", length = 100)
+	private String checkOutTime;
 
 	public int getId() {
 		return id;
@@ -79,5 +86,21 @@ public class Booking {
 
 	public void setRoom(Room room) {
 		this.room = room;
+	}
+
+	public String getCheckInTime() {
+		return checkInTime;
+	}
+
+	public void setCheckInTime(String checkInTime) {
+		this.checkInTime = checkInTime;
+	}
+
+	public String getCheckOutTime() {
+		return checkOutTime;
+	}
+
+	public void setCheckOutTime(String checkOutTime) {
+		this.checkOutTime = checkOutTime;
 	}
 }
