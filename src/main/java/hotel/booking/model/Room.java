@@ -64,6 +64,6 @@ public class Room {
     }
 
     public enum RoomType {
-        Single, Double, Suite
+        Single, Double, Suite, Triple, Deluxe, Penthouse
     }
 }

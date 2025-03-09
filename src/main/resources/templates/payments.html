@@ -10,7 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <div th:include="~{index :: menu('payments')}"></div>
+    <div th:insert="~{index :: menu('payments')}"></div>
     <div class="container">
         <h3>Payments</h3>
         <table class="table table-striped table-responsive-md">

@@ -25,7 +25,6 @@ import hotel.booking.repository.BookingRepository;
 import hotel.booking.repository.GuestRepository;
 import hotel.booking.repository.RoomRepository;
 import hotel.booking.model.Booking;
-import hotel.booking.model.BookingDetails;
 import hotel.booking.model.Guest;
 import hotel.booking.model.Room;;
 
@@ -43,11 +42,10 @@ public class BookingController {
 
     @GetMapping("/")
 	public String viewHomePage(@RequestParam(name="sdate", required=false, defaultValue="") String sdate,  Model model) {
-		// List<Booking> bookings = bookingRepository.findAll();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String strDate = LocalDateTime.now().minusDays(60).format(formatter);
 
-		List<Map<String,BookingDetails>> bookings = bookingRepository.findAllWithGuestRoom(sdate.isEmpty()? "NOW() - INTERVAL 60 DAY" : sdate);
+		List<Map<String,Object>> bookings = bookingRepository.findAllWithGuestRoom(sdate.isEmpty()? "NOW() - INTERVAL 60 DAY" : sdate);
 		model.addAttribute("bookings", bookings);
 		model.addAttribute("sdate", sdate.isEmpty() ? strDate : sdate);
 		return "index";	
@@ -55,13 +53,8 @@ public class BookingController {
 
 	@GetMapping("/test")
 	@ResponseBody
-	public List<Map<String,BookingDetails>> test(@RequestParam(name="sdate", required=false, defaultValue="NOW() - INTERVAL 60 DAY") String sdate){
-
-		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		// String strDate = LocalDateTime.now().minusDays(2).format(formatter);
-
+	public List<Map<String,Object>> test(@RequestParam(name="sdate", required=false, defaultValue="NOW() - INTERVAL 60 DAY") String sdate){
 		return bookingRepository.findAllWithGuestRoom(sdate);
-		
 	}
 
 	@GetMapping("/login")
@@ -77,11 +70,17 @@ public class BookingController {
 	}
 
 	@PostMapping("/bookings/ins")
-	public String save(@ModelAttribute("booking") Booking booking) {
-
-		bookingRepository.save(booking);
-		return "redirect:/";
-	}
+	public String save(@ModelAttribute("booking") Booking booking, Model model) {
+        try {
+            validateBookingDates(booking, 0);
+            bookingRepository.save(booking);
+            return "redirect:/";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("booking", booking);
+            return "newBooking";
+        }
+    }
 
 	@GetMapping("/bookings/edit/{id}")
 	public String showEditForm(@PathVariable("id") int id, Model model) {
@@ -101,10 +100,21 @@ public class BookingController {
 	}
 
 	@PostMapping("/bookings/upd")
-	public String update(@ModelAttribute("booking") Booking booking) {
-		bookingRepository.save(booking);
-		return "redirect:/";
-	}
+	public String update(@ModelAttribute("booking") Booking booking, Model model) {
+        try {
+            validateBookingDates(booking, booking.getId());
+            bookingRepository.save(booking);
+            return "redirect:/";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("booking", booking);
+            Room room = booking.getRoom();
+            Guest guest = booking.getGuest();
+            model.addAttribute("roomNumber", room.getRoomNumber() + " - " + room.getType());
+            model.addAttribute("guestName", guest.getLastName() + " " + guest.getFirstName());
+            return "editBooking";
+        }
+    }
 
 	@GetMapping("/bookings/delete/{id}")
 	public String delete(@PathVariable("id") int id) {
@@ -148,5 +158,18 @@ public class BookingController {
 	    }
 	}
 
+    private void validateBookingDates(Booking booking, int excludeBookingId) {
+        if (booking.getCheckOut().isBefore(booking.getCheckIn())) {
+            throw new IllegalArgumentException("Check-out date must be after check-in date");
+        }
+
+        if (bookingRepository.existsOverlappingBooking(
+                booking.getRoom().getId(),
+                booking.getCheckIn(),
+                booking.getCheckOut(),
+                excludeBookingId)) {
+            throw new IllegalArgumentException("Room is already booked for the selected dates");
+        }
+    }
 
 }
